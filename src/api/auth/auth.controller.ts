@@ -6,13 +6,13 @@ const cryptr = new Cryptr("my_secret");
 
 async function generateUniqueId() {
   const prefix = "UID";
-  const random = () => Math.floor(Math.random() * 1_000_000_000)
+  const random = () => Math.floor(Math.random() * 1_000_000_000);
 
-  let uniqueId = `${prefix}${random ()}`;
+  let uniqueId = `${prefix}${random()}`;
   let user = await User.findOne({ uniqueId: uniqueId });
 
-  while(user){
-    uniqueId = `${prefix}${random ()}`
+  while (user) {
+    uniqueId = `${prefix}${random()}`;
     user = await User.findOne({ uniqueId: uniqueId });
   }
   return uniqueId;
@@ -21,58 +21,54 @@ async function generateUniqueId() {
 // Registration
 export const handleRegistration = async (req: Request, res: Response) => {
   try {
-    const { email, password, username, image, file } = req.body;
+    const { email, password, username, file } = req.body;
+    console.log(req.file)
 
     if (!email || !username || !password) {
-      return res.status(404).json({status: false, message: "email, username & password must be required"});
+      return res
+        .status(404)
+        .json({
+          status: false,
+          message: "email, username & password must be required",
+        });
     }
-    
+
     const existUser = await User.findOne({ $or: [{ email }, { username }] });
-    if(existUser){
+    if (existUser) {
       return res.status(404).json({
         status: false,
-        message:  "This Email or Username already in used"
-      })
+        message: "This Email or Username already in used",
+      });
     }
 
-    const newUser = new User({ 
-      email, 
-      username, 
+    const newUser = new User({
+      email,
+      username,
       password,
       uniqueId: await generateUniqueId(),
-      date: new Date().toLocaleDateString("en-us", { timeZone: "Asia/Dhaka"})
-     });
+      date: new Date().toLocaleDateString("en-us", { timeZone: "Asia/Dhaka" }),
+    });
 
     //  imamge
-    if(image){
-      newUser.image = image;
+
+    if (req.file) {
+      newUser.image = `${process.env.baseURL}/${req.file.filename}`;
+    } else {
+      newUser.image = `${process.env.baseURL}/storage/maleAvater.webp`;
     }
-
-    else if(file){
-      newUser.image =   `${process.env.baseURL}/${file.path}`
-    }
-
-    else if(newUser.image){
-      newUser.image = newUser.image
-    }
-
-    else{
-      newUser.image =`${process.env.baseURL}/storage/maleAvater.webp`
-    }
-
-
 
     const user = await newUser.save();
 
-
     return res.status(200).json({
-        status: true,
-        message: "User registered successfully",
-        user
-    })
+      status: true,
+      message: "User registered successfully",
+      user,
+    });
   } catch (error) {
     console.error("Failed to signup", error);
-    return res.status(500).json({ status: false, message: "Somthing went wrong, try again later" })
+    return res
+      .status(500)
+      .json({ status: false, message: "Somthing went wrong, try again later" });
   }
 };
 
@@ -80,20 +76,27 @@ export const handleRegistration = async (req: Request, res: Response) => {
 export const handleLogin = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-    if( !email || !password){
-      return res.status(400).json({ status: false, message: "Email and Password are must be required" });
-    };
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({
+          status: false,
+          message: "Email and Password are must be required",
+        });
+    }
 
-    const user = await User.findOne({email}).select("+password");
+    const user = await User.findOne({ email }).select("+password");
 
-    if(!user){
-      return res.status(401).json({ status: false, message: "User not found with this email" });
+    if (!user) {
+      return res
+        .status(401)
+        .json({ status: false, message: "User not found with this email" });
     }
 
     // Check password
     const isMatch = await user.comparePassword(password);
 
-    if(!isMatch){
+    if (!isMatch) {
       return res.status(404).json({ status: false, messge: "Wrong password" });
     }
 
@@ -103,27 +106,31 @@ export const handleLogin = async (req: Request, res: Response) => {
     // Remove sensitive fields
     const { password: _, ...userData } = user.toObject();
 
-    return res.status(201).json({ status: true, message: "Login successful", user: userData, token })
-    
+    return res
+      .status(201)
+      .json({
+        status: true,
+        message: "Login successful",
+        user: userData,
+        token,
+      });
   } catch (error) {
     console.error("Login failed", error);
-    return res.status(500).json({ status: false, message: "Server error" })
+    return res.status(500).json({ status: false, message: "Server error" });
   }
-}
+};
 
 // Retrive all users
 export const handleGetAllUsers = async (req: Request, res: Response) => {
-
   try {
     const users = await User.find({}).select("-password");
     const totalCount = await User.countDocuments();
-
 
     return res.status(200).json({
       status: true,
       message: "Retrieved all users",
       totalCount,
-      users
+      users,
     });
   } catch (error) {
     console.error("❌ Internal server error:", error);

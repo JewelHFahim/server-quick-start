@@ -29,7 +29,7 @@ const fileFilter = (
   file: Express.Multer.File,
   cb: FileFilterCallback
 ) => {
-  const allowed = /jpeg|jpg|png|gif/;
+  const allowed = /jpeg|jpg|png|gif|webp/;
   const ext = path.extname(file.originalname).toLowerCase();
   if (allowed.test(ext)) {
     cb(null, true);

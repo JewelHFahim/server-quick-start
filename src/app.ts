@@ -4,6 +4,7 @@ import cors from "cors";
 import morgan from "morgan";
 import routes from "./core/routes/routes";
 import { connectDB } from "./config/db.config";
+import path from "path";
 
 const app = express();
 
@@ -17,6 +18,9 @@ app.use(morgan("dev"));
 
 // 🔹 MongoDB
 connectDB();
+
+app.use("/uploads", express.static(path.join(__dirname, "../storage")));
+
 
 app.get("/", (req, res) => {
   res.send("Test Server Runnig Successfully");

@@ -22,15 +22,13 @@ async function generateUniqueId() {
 export const handleRegistration = async (req: Request, res: Response) => {
   try {
     const { email, password, username, file } = req.body;
-    console.log(req.file)
+    console.log(req.file);
 
     if (!email || !username || !password) {
-      return res
-        .status(404)
-        .json({
-          status: false,
-          message: "email, username & password must be required",
-        });
+      return res.status(404).json({
+        status: false,
+        message: "email, username & password must be required",
+      });
     }
 
     const existUser = await User.findOne({ $or: [{ email }, { username }] });
@@ -40,6 +38,9 @@ export const handleRegistration = async (req: Request, res: Response) => {
         message: "This Email or Username already in used",
       });
     }
+
+    // Multer-storage-cloudinary attaches file info
+    const files = req.file as Express.Multer.File & { path: string };
 
     const newUser = new User({
       email,
@@ -52,15 +53,14 @@ export const handleRegistration = async (req: Request, res: Response) => {
     //  imamge
 
     if (req.file) {
-      newUser.image = `${process.env.baseURL}/${req.file.filename}`;
-    } else {
-      newUser.image = `${process.env.baseURL}/storage/maleAvater.webp`;
+      newUser.image = files.path;
     }
 
     const user = await newUser.save();
 
     return res.status(200).json({
       status: true,
+
       message: "User registered successfully",
       user,
     });
@@ -77,12 +77,10 @@ export const handleLogin = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({
-          status: false,
-          message: "Email and Password are must be required",
-        });
+      return res.status(400).json({
+        status: false,
+        message: "Email and Password are must be required",
+      });
     }
 
     const user = await User.findOne({ email }).select("+password");
@@ -106,14 +104,12 @@ export const handleLogin = async (req: Request, res: Response) => {
     // Remove sensitive fields
     const { password: _, ...userData } = user.toObject();
 
-    return res
-      .status(201)
-      .json({
-        status: true,
-        message: "Login successful",
-        user: userData,
-        token,
-      });
+    return res.status(201).json({
+      status: true,
+      message: "Login successful",
+      user: userData,
+      token,
+    });
   } catch (error) {
     console.error("Login failed", error);
     return res.status(500).json({ status: false, message: "Server error" });

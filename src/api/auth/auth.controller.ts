@@ -116,6 +116,42 @@ export const handleLogin = async (req: Request, res: Response) => {
   }
 };
 
+//Update User
+export const handleUpdateUser = async (req: Request, res: Response) => {
+  try {
+    const { username, email } = req.body;
+    const { userId } = req.params;;
+
+    if (!userId) {
+      return res.status(400).json({ status: false, message: "Ops! Invalid details" });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(400).json({ status: false, message: "Ops! User not found, provide valid infos" });
+    }
+
+    user.username = username ? username?.trim() : user.username;
+    user.email = email ? email?.trim() : user.email;
+
+    // Multer-storage-cloudinary attaches file info
+    
+    if(req.file){
+      const file = req.file as Express.Multer.File;
+      user.image = file.path;
+    }
+
+    await user.save();
+
+    return res.status(201).json({ status: true, message: "User update successfully", user })
+
+  } catch (error) {
+    console.error("Internal server error, updating user", error);
+    return res.status(500).json({ status: false, message: "Failed update user, try again later" });
+  }
+};
+
 // Retrive all users
 export const handleGetAllUsers = async (req: Request, res: Response) => {
   try {

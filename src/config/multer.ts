@@ -47,20 +47,58 @@
 
 
 // src/config/multer.ts
+// import multer from "multer";
+// import { CloudinaryStorage } from "multer-storage-cloudinary";
+// import cloudinary from "./cloudinary";
+
+// // Storage configuration for cloudinary
+// const storage = new CloudinaryStorage({
+//   cloudinary,
+//   params: async (_req, file) => {
+//     return {
+//       folder: "bigo-app",
+//       format: 'jpg',
+//       public_id: file.fieldname + "-" + Date.now(),
+//     };
+//   },
+// });
+
+// export const upload = multer({ storage });
+
+
+// src/config/multer.ts
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import cloudinary from "./cloudinary";
+import crypto from "crypto";
+
 
 // Storage configuration for cloudinary
 const storage = new CloudinaryStorage({
   cloudinary,
   params: async (_req, file) => {
     return {
-      folder: "bigo-app", // folder name in cloudinary
-      format: 'jpg', // auto or specify: 'jpg', 'png'
-      public_id: file.fieldname + "-" + Date.now(),
+      folder: "bigo-app",
+      format: undefined, // let Cloudinary keep original format
+      public_id: `${file.fieldname}-${Date.now()}-${crypto.randomUUID()}`,
     };
   },
 });
 
-export const upload = multer({ storage });
+// File filter (accept only images)
+const fileFilter = (_req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  if (file.mimetype.startsWith("image/")) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only image files are allowed!"));
+  }
+};
+
+
+export const upload = multer({
+  storage,
+  limits: { 
+    fileSize: 5 * 1024 * 1024, // 5 MB
+  },
+  fileFilter,
+});

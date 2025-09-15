@@ -19,8 +19,8 @@ app.use(morgan("dev"));
 // 🔹 MongoDB
 connectDB();
 
+// 🔹 Local folder
 app.use("/uploads", express.static(path.join(__dirname, "../storage")));
-
 
 app.get("/", (req, res) => {
   res.send("Test Server Runnig Successfully");

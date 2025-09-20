@@ -20,7 +20,7 @@ async function generateUniqueId() {
 // Registration
 export const handleRegistration = async (req: Request, res: Response) => {
   try {
-    const { email, password, username } = req.body;
+    const { email, password, username, role } = req.body;
 
     if (!email || !username || !password) {
       return res.status(404).json({
@@ -44,6 +44,7 @@ export const handleRegistration = async (req: Request, res: Response) => {
       email,
       username,
       password,
+      role,
       uniqueId: await generateUniqueId(),
       date: new Date().toLocaleDateString("en-us", { timeZone: "Asia/Dhaka" }),
     });
@@ -92,7 +93,7 @@ export const handleLogin = async (req: Request, res: Response) => {
     }
 
     // Generate token
-    const { accessToken, refreshToken } = await createToken( user._id.toString(), "admin");
+    const { accessToken, refreshToken } = await createToken( user._id.toString(), user.role);
 
     res.cookie( "refreshToken", refreshToken, {
       httpOnly: true,
@@ -113,119 +114,6 @@ export const handleLogin = async (req: Request, res: Response) => {
 };
 
 // Handle Refresh token
-// export const handleRefreshToken = async (req: Request, res: Response)  => {
-//   try {
-//      const token = req.cookies.refreshToken;
-     
-//    if(!token){
-//     return res.status(401).json({ status: false, message: "No refresh token" })
-//    }
-
-//    const decoded = verifyRefreshToken(token) as { id: string };
-
-//   if (!decoded?.id) {
-//     return res.status(403).json({ status: false, message: "Invalid refresh token" });
-//   }
-
-//    const user = await User.findById(decoded?.id);
-
-//   if(!user){
-//     return res.status(401).json({ status: false, message: "User not found" })
-//    }
-
-//    const storedToken = user.refreshToken.find(t => t.token === token);
-
-//   if(!storedToken){
-//     return res.status(401).json({ status: false, message: "Token revoked" })
-//    }
-
-//    user.refreshToken = user.refreshToken.filter((t)=> t.token !== token);
-
-//    const { accessToken, refreshToken } = await createToken( user._id.toString(), user.role );
-
-//    await User.findByIdAndUpdate(user._id,{
-//     $pull: { refreshToken: { token } }, // remove old token
-//     $push: {
-//        token: refreshToken, 
-//        expiresAt: new Date( Date.now() + 7 * 24 * 60 * 60 * 1000 )
-//     }
-//    })
-
-//    res.cookie("refreshToken", refreshToken, {
-//     httpOnly: true,
-//     secure: process.env.NODE_ENV === "production",
-//     sameSite: "strict",
-//     maxAge: 7 * 24 * 60 * 60 * 1000
-//    });
-
-//    return res.status(201).json({ status: true, refreshToken})
-//   } catch (error) {
-//     console.log("Internal server error", error);
-//     return res.status(500).json({ status: false, message: "Token refresh failed", error });
-//   }
-// }
-
-
-// export const handleRefreshToken = async (req: Request, res: Response) => {
-//   try {
-//     const token = req.cookies?.refreshToken;
-
-//     if (!token) {
-//       return res.status(401).json({ status: false, message: "No refresh token" });
-//     }
-
-//     const decoded = verifyRefreshToken(token) as { id: string };
-//     if (!decoded?.id) {
-//       return res.status(403).json({ status: false, message: "Invalid refresh token" });
-//     }
-
-//     const user = await User.findById(decoded.id);
-//     if (!user) {
-//       return res.status(401).json({ status: false, message: "User not found" });
-//     }
-
-//     // Validate existing token
-//     const storedToken = user.refreshToken.find((t) => t.token === token);
-//     if (!storedToken) {
-//       return res.status(401).json({ status: false, message: "Token revoked" });
-//     }
-
-//     // Create new tokens
-//     const { accessToken, refreshToken } = await createToken(user._id.toString(), user.role);
-
-//     // Remove old refresh token
-//     await User.findByIdAndUpdate(user._id, {
-//       $pull: { refreshToken: { token } },
-//     });
-
-//     // Add new refresh token
-//     await User.findByIdAndUpdate(user._id, {
-//       $push: {
-//         refreshToken: {
-//           token: refreshToken,
-//           expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-//         },
-//       },
-//     });
-
-//     // Set cookie with new refresh token
-//     res.cookie("refreshToken", refreshToken, {
-//       httpOnly: true,
-//       secure: process.env.NODE_ENV === "production",
-//       sameSite: "strict",
-//       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-//     });
-
-//     return res.status(200).json({
-//       status: true,
-//       accessToken,
-//     });
-//   } catch (error) {
-//     console.error("Internal server error (refresh token)", error);
-//     return res.status(500).json({ status: false, message: "Token refresh failed" });
-//   }
-// };
-
 export const handleRefreshToken = async (req: Request, res: Response) => {
   try {
     const token = req.cookies?.refreshToken;

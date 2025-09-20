@@ -4,7 +4,7 @@ import User from "./user.model";
 //Update User
 export const handleUpdateUser = async (req: Request, res: Response) => {
   try {
-    const { username, email } = req.body;
+    const { username, email, role } = req.body;
     const { userId } = req.params;
 
     if (!userId) {
@@ -24,6 +24,7 @@ export const handleUpdateUser = async (req: Request, res: Response) => {
 
     user.username = username ? username?.trim() : user.username;
     user.email = email ? email?.trim() : user.email;
+    user.role= role ? role.trim() : user.role;
 
     // Multer-storage-cloudinary attaches file info
     if (req.file) {

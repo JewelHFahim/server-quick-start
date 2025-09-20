@@ -1,5 +1,6 @@
 import mongoose, { Document, Model, Schema, Types } from "mongoose";
 import bcrypt from "bcrypt";
+import { Roles } from "../../constants/roles";
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
@@ -9,7 +10,7 @@ export interface IUser extends Document {
   password: string;
   image: string | null;
   date: string;
-  role: "user" | "admin" | "super-admin";
+  role: Roles ;
   refreshToken: { token:string, expiresAt: Date }[];
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
@@ -22,6 +23,7 @@ const UserSchema: Schema<IUser> = new Schema(
     password: { type: String, trim: true, required: true },
     image: { type: String, trim: true, default: null },
     refreshToken: [ { token: String, expiresAt: Date } ],
+    role: { type: String, enum: Object.values(Roles), default: Roles.USER },
     date: { type: String },
   },
   {

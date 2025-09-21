@@ -12,7 +12,8 @@ import { Roles } from "../../constants/roles";
 
 const router = express.Router();
 
-router.get("/", authenticate, authorization(Roles.ADMIN), handleGetAllUsers);
+router.get("/", authenticate, handleGetAllUsers);
+// router.get("/", authenticate, authorization(Roles.ADMIN), handleGetAllUsers);
 router.patch("/update/:userId", upload.single("image"), handleUpdateUser);
 router.delete("/delete/all", handleDeleteAllUsers);
 router.delete("/delete", handleDeleteUsersBulk);

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import User from "./user.model";
+import { teachers } from "../../core/mockdata";
 
 //Update User
 export const handleUpdateUser = async (req: Request, res: Response) => {
@@ -47,25 +48,33 @@ export const handleUpdateUser = async (req: Request, res: Response) => {
 
 // Retrive all users
 export const handleGetAllUsers = async (req: Request, res: Response) => {
-  try {
-    const users = await User.find({}).select("-password");
-    const totalCount = await User.countDocuments();
+  // try {
+  //   const users = await User.find({}).select("-password");
+  //   const totalCount = await User.countDocuments();
 
-    return res.status(200).json({
-      status: true,
-      message: "Retrieved all users",
-      totalCount,
-      users,
-    });
-  } catch (error) {
-    console.error("❌ Internal server error:", error);
+  //   return res.status(200).json({
+  //     status: true,
+  //     message: "Retrieved all users",
+  //     totalCount,
+  //     users,
+  //   });
+  // } catch (error) {
+  //   console.error("❌ Internal server error:", error);
 
-    return res.status(500).json({
-      status: false,
-      message: "Server error, try again later",
-      error: error instanceof Error ? error.message : error,
-    });
-  }
+  //   return res.status(500).json({
+  //     status: false,
+  //     message: "Server error, try again later",
+  //     error: error instanceof Error ? error.message : error,
+  //   });
+  // }
+
+  const teacher = await User.aggregate([
+    { $group: { _id: "$_id", fullDoc:{ $push:"$$ROOT" } } }
+  ]);
+
+  console.log(teacher)
+
+return res.json({name: "test"})
 };
 
 // Delete Single User

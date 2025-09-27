@@ -11,6 +11,7 @@ export interface IUser extends Document {
   image: string | null;
   date: string;
   role: Roles ;
+  balance: number;
   refreshToken: { token:string, expiresAt: Date }[];
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
@@ -25,6 +26,7 @@ const UserSchema: Schema<IUser> = new Schema(
     refreshToken: [ { token: String, expiresAt: Date } ],
     role: { type: String, enum: Object.values(Roles), default: Roles.USER },
     date: { type: String },
+    balance: { type: Number, default: 0 },
   },
   {
     timestamps: true,

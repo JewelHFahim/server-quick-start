@@ -5,7 +5,6 @@ import morgan from "morgan";
 import routes from "./core/routes/routes";
 import { connectDB } from "./config/db.config";
 import cookieParser from "cookie-parser";
-
 import path from "path";
 
 const app = express();
@@ -14,7 +13,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 app.use(helmet());
-app.use(cookieParser())
+
+app.use(cookieParser());
 
 // 🔹 Logger
 app.use(morgan("dev"));
@@ -25,9 +25,14 @@ connectDB();
 // 🔹 Local folder
 app.use("/uploads", express.static(path.join(__dirname, "../storage")));
 
+// app.get("/", (req, res) => {
+//   res.send("Test Server Runnig Successfully");
+// });
+
 app.get("/", (req, res) => {
-  res.send("Test Server Runnig Successfully");
+  res.sendFile(__dirname + "/index.html");
 });
+
 
 // 🔹 Routes
 app.use("/api/v1", routes);

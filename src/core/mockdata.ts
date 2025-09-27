@@ -14,11 +14,10 @@ export const teachers = [
 ];
 
 [
-  { "_id": 1, "title": "Alice1", "author_id": 20, "genre": "female" },
-  { "_id": 2, "title": "Mike2", "author_id": 21, "genre": "male" },
-  { "_id": 3, "title": "Alice3", "author_id": 22, "genre": "female" },
-  { "_id": 4, "title": "Mike4", "author_id": 20, "genre": "male" },
-  { "_id": 5, "title": "Alice5", "author_id": 21, "genre": "female" },
-  { "_id": 6, "title": "Mike6", "author_id": 22, "genre": "male" }
-]
-
+  { _id: 1, title: "Alice1", author_id: 20, genre: "female" },
+  { _id: 2, title: "Mike2", author_id: 21, genre: "male" },
+  { _id: 3, title: "Alice3", author_id: 22, genre: "female" },
+  { _id: 4, title: "Mike4", author_id: 20, genre: "male" },
+  { _id: 5, title: "Alice5", author_id: 21, genre: "female" },
+  { _id: 6, title: "Mike6", author_id: 22, genre: "male" },
+];

@@ -1,8 +1,13 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Roles } from "../../constants/roles";
 
+// interface TokenPayload {
+//   id: string;
+//   role: Roles;
+// }
+
 interface TokenPayload {
-  id: string;
+  _id: string;
   role: Roles;
 }
 

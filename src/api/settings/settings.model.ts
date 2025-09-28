@@ -25,7 +25,7 @@ const defaultBoxes = [
 
 const SettingsSchema = new Schema<ISettings>(
   {
-    roundDuration: { type: Number, required: true, default: 10 },
+    roundDuration: { type: Number, required: true, default: 30 },
     minBet: { type: Number, required: true, default: 10 },
     maxBet: { type: Number, required: true, default: 10000 },
     boxes: { type: [String], required: true, default: defaultBoxes },

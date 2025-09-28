@@ -12,10 +12,14 @@ interface TokenPayload {
 }
 
 // GENERATE ACCESS TOKEN
-export const generateAccessToken = (userId: string, role: Roles): string => {
+// export const generateAccessToken = (userId: string, role: Roles): string => {
+//   const secret = process.env.JWT_ACCESS_SECRET as string;
+//   if (!secret) throw new Error("JWT_ACCESS_SECRET not defined");
+//   return jwt.sign({ id: userId, role }, secret, { expiresIn: "15m" });
+// };
+export const generateAccessToken = (userId: string, role: Roles) => {
   const secret = process.env.JWT_ACCESS_SECRET as string;
-  if (!secret) throw new Error("JWT_ACCESS_SECRET not defined");
-  return jwt.sign({ id: userId, role }, secret, { expiresIn: "15m" });
+  return jwt.sign({ _id: userId, role }, secret, { expiresIn: "15m" });
 };
 
 export const verifyAccessToken = (token: string): TokenPayload => {

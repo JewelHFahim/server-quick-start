@@ -9,7 +9,9 @@ export const createToken = async ( userId: string, role: Roles) => {
   const accessToken = generateAccessToken(userId, role);
   const refreshToken = generateRefreshToken(userId, role);
 
-  const user = await User.findById(userId);
+  // const user = await User.findById(userId);
+  const user = await User.findById(userId._id).lean();
+
   if (user) {
     user.refreshToken.push({
       token: refreshToken,

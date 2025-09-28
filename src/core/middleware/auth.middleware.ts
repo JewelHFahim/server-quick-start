@@ -22,11 +22,14 @@ export const authenticate = async ( req: AuthRequest, res: Response, next: NextF
 
   try {
     const decoded = verifyAccessToken(token);
+
+    console.log("Decoded token:", decoded);
+
     if(!decoded) {
         return res.status(401).json({ status: false, message: "Token not valid" })
     };
    
-    req.user = decoded;
+    // req.user = decoded;
 
     next();
   } catch (error) {

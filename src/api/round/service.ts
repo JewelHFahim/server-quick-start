@@ -1,9 +1,13 @@
+
 import { BetModel } from "../bet/bet.model";
 import { SettingsModel } from "../settings/settings.model";
 import User from "../users/user.model";
 import { RoundModel } from "./round.model";
 
 let roundLoopRunning = false;
+let currentRound: any = null; // 🔥 keep reference to latest round
+
+export const getCurrentRound = () => currentRound;
 
 export const startRoundLoop = async (io: any) => {
   if (roundLoopRunning) return; // prevent duplicate loops
@@ -28,7 +32,9 @@ export const startRoundLoop = async (io: any) => {
       boxes: settings.boxes,
     });
 
-    // Start round
+    // update global current round
+    currentRound = round;
+
     io.emit("round:start", {
       _id: round._id,
       roundNumber: round.roundNumber,
@@ -46,8 +52,8 @@ export const startRoundLoop = async (io: any) => {
     round.closedAt = new Date();
     await round.save();
 
-    
-    // Close round
+    currentRound = round; // update reference
+
     io.emit("round:closed", {
       _id: round._id,
       roundNumber: round.roundNumber,
@@ -69,14 +75,15 @@ export const startRoundLoop = async (io: any) => {
     round.revealedAt = new Date();
     await round.save();
 
+    currentRound = round; // update reference
+
     console.log(`🏆 Round ${round.roundNumber} result: ${winningBox}`);
 
     // 5. Process payouts
     const bets = await BetModel.find({ roundId: round._id, box: winningBox });
 
     for (const bet of bets) {
-      // calculate payout (example: 5x, 15x, or default multiplier)
-      let multiplier = 2; // fallback
+      let multiplier = 2; // default multiplier
       if (bet.box === "5x") multiplier = 5;
       if (bet.box === "15x") multiplier = 15;
 
@@ -86,7 +93,6 @@ export const startRoundLoop = async (io: any) => {
       bet.payout = payout;
       await bet.save();
 
-      // credit user balance if not a bot
       if (!bet.isBot) {
         await User.findByIdAndUpdate(bet.userId, {
           $inc: { balance: payout },
@@ -102,10 +108,9 @@ export const startRoundLoop = async (io: any) => {
 
     console.log(`💰 Payouts processed for Round ${round.roundNumber}`);
 
-    // 6. Start next round after short break (e.g., 2s)
+    // 6. Start next round after short break
     setTimeout(runLoop, 2000);
   };
 
-  // start the first loop
   runLoop();
 };
